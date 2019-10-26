@@ -54,6 +54,26 @@
           }
     },      
    "Resources" : {
+      "EIP": {
+        "Properties": {
+         "Domain": "vpc"
+        },
+        "Type": "AWS::EC2::EIP"
+       },
+      "EIPAddressAssociation": {
+        "Properties": {
+         "AllocationId": {
+          "Fn::GetAtt": [
+           "EIP",
+           "AllocationId"
+          ]
+         },
+         "NetworkInterfaceId": {
+          "Ref": "networkInterface"
+         }
+        },
+        "Type": "AWS::EC2::EIPAssociation"
+       },
       "networkInterface": {
         "Properties": {
          "Description": "Public External Interface",
@@ -64,7 +84,7 @@
          ],
          "SourceDestCheck": false,
          "SubnetId": {
-            "Fn::ImportValue" : {"Fn::Sub": "${vpcStackName}-AppSubnetAID" }
+            "Fn::ImportValue" : {"Fn::Sub": "${vpcStackName}-subnet1" }
          }
         },
         "Type": "AWS::EC2::NetworkInterface"
@@ -82,7 +102,8 @@
             "configSets" : {
               "full_install" : [ "install_and_enable_cfn_hup" ],
               "install_nginx" : [ "install_and_enable_cfn_hup", "install_nginx" ],
-			  "install_docker" : [ "install_and_enable_cfn_hup", "install_docker" ]
+              "install_docker" : [ "install_and_enable_cfn_hup", "install_docker" ],
+              "install_terraform" : [ "install_and_enable_cfn_hup", "install_terraform" ]
             },
             "install_and_enable_cfn_hup" : {
               "files" : {
@@ -104,7 +125,7 @@
                               "action=/opt/aws/bin/cfn-init -v ",
                               "         --stack ", { "Ref" : "AWS::StackName" },
                               "         --resource EC2Instance ",
-                              "         --configsets install_docker ",
+                              "         --configsets install_terraform ",
                               "         --region ", { "Ref" : "AWS::Region" }, "\n",
                               "runas=root\n"
                             ]]}
@@ -178,7 +199,28 @@
                      }
                   }
 			   }
-			 }
+             },
+             "install_terraform": {
+                "files": {
+                },
+                "commands": {
+                  "010-install-terraform": {
+                      "command": {
+                         "Fn::Join": [
+                         "\n",
+                         [
+                           "sudo apt-get install software-properties-common",
+                           "sudo apt-get update -y",
+                           "sudo apt-get install -y apt-transport-https",
+                           "sudo apt-get install -y wget unzip",
+                           "sudo wget https://releases.hashicorp.com/terraform/0.12.12/terraform_0.12.12_linux_amd64.zip",
+                           "sudo unzip ./terraform_0.12.12_linux_amd64.zip -d /usr/local/bin/"
+                         ]
+                         ]
+                      }
+                   }
+                }
+              }
           }
         },
         "Properties" : {
@@ -210,7 +252,7 @@
                 "/opt/aws/bin/cfn-init -v ",
                "         --stack ", { "Ref" : "AWS::StackName" },
                "         --resource EC2Instance ",
-               "         --configsets install_docker ",
+               "         --configsets install_terraform ",
                "         --region ", { "Ref" : "AWS::Region" }, "\n",
   
                "/opt/aws/bin/cfn-signal -e $? ",
@@ -255,7 +297,7 @@
           }
          ],
          "VpcId": {
-          "Fn::ImportValue" : {"Fn::Sub": "${vpcStackName}-AppVpcId" }
+          "Fn::ImportValue" : {"Fn::Sub": "${vpcStackName}-vpcId" }
          }
         },
         "Type": "AWS::EC2::SecurityGroup"
