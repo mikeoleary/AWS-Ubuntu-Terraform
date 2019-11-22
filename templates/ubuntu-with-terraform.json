@@ -3,7 +3,7 @@
     "Description" : "Installing Cloudformation helper scripts in Ubuntu Ubuntu16 LTS, starting reference for template was at https://github.com/awslabs/aws-cloudformation-templates/tree/master/aws/solutions/HelperNonAmaznAmi",
     "Parameters" : {
         "awscli": {
-          "Description" : "Yes or No to install AWS CLI",
+          "Description" : "Choose Yes to install awscli, jq, and kubectl",
           "AllowedValues" : [ "Yes", "No"],
           "Type" : "String"
         },
@@ -231,7 +231,10 @@
                                     "sudo unzip ./terraform_0.12.12_linux_amd64.zip -d /usr/local/bin/",
                                     "sudo apt-get update -y",
                                     "sudo apt-get install awscli -y",
-                                    "sudo apt-get install jq -y"
+                                    "sudo apt-get install jq -y",
+                                    "sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/`sudo curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl",
+                                    "sudo chmod +x ./kubectl",
+                                    "sudo mv ./kubectl /usr/local/bin/kubectl"
                                     ]
                                 ]
                             },
