@@ -1,9 +1,40 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
+    "Metadata": {
+      "AWS::CloudFormation::Interface": {
+        "ParameterGroups": [
+            {
+                "Label": {
+                "default": "OS config options"
+                },
+                "Parameters": [
+                "tools",
+                "ubuntuVersion"
+                ]
+            },
+            {
+                "Label": {
+                "default": "VM config options"
+                },
+                "Parameters": [
+                "sshKey",
+                "InstanceType",
+                "SSHLocation",
+                "vpcStackName"
+                ]
+            }
+        ],
+        "ParameterLabels": {
+            "tools": {
+              "default": "Install Tools?"
+             }
+        }
+      }
+    },
     "Description" : "Installing Cloudformation helper scripts in Ubuntu Ubuntu16 LTS, starting reference for template was at https://github.com/awslabs/aws-cloudformation-templates/tree/master/aws/solutions/HelperNonAmaznAmi",
     "Parameters" : {
-        "awscli": {
-          "Description" : "Choose Yes to install awscli, jq, and kubectl",
+        "tools": {
+          "Description" : "Choose Yes to install these tools: jq, awscli, aws-iam-authenticator, kubectl, helm",
           "AllowedValues" : [ "Yes", "No"],
           "Type" : "String"
         },
@@ -40,8 +71,8 @@
      }
     },
     "Conditions": {
-        "awscli": {
-            "Fn::Equals" : [{"Ref" : "awscli"}, "Yes"]
+        "tools": {
+            "Fn::Equals" : [{"Ref" : "tools"}, "Yes"]
          }
     },
     "Mappings": {
@@ -218,7 +249,7 @@
                   "010-install-terraform": {
                       "command": {
                         "Fn::If": [
-                            "awscli",
+                            "tools",
                             { 
                                 "Fn::Join": [
                                     "\n",
@@ -230,11 +261,25 @@
                                     "sudo wget https://releases.hashicorp.com/terraform/0.12.12/terraform_0.12.12_linux_amd64.zip",
                                     "sudo unzip ./terraform_0.12.12_linux_amd64.zip -d /usr/local/bin/",
                                     "sudo apt-get update -y",
-                                    "sudo apt-get install awscli -y",
                                     "sudo apt-get install jq -y",
+                                    "### install awscli",
+                                    "sudo apt-get install awscli -y",
+                                    "\n",
+                                    "### install aws-iam-authenticator",
+                                    "sudo curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/aws-iam-authenticator",
+                                    "sudo chmod +x ./aws-iam-authenticator",
+                                    "sudo mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator",
+                                    "\n",
+                                    "### install kubectl",
                                     "sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/`sudo curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl",
                                     "sudo chmod +x ./kubectl",
-                                    "sudo mv ./kubectl /usr/local/bin/kubectl"
+                                    "sudo mv ./kubectl /usr/local/bin/kubectl",
+                                    "\n",
+                                    "### install helm",
+                                    "cd /tmp",
+                                    "sudo curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > install-helm.sh",
+                                    "sudo chmod u+x install-helm.sh",
+                                    "sudo ./install-helm.sh"
                                     ]
                                 ]
                             },
