@@ -1,5 +1,5 @@
 # AWS-Ubuntu-Terraform
-Deploys an Ubuntu instance and installs Terraform
+Deploys an Ubuntu instance and installs Terraform for when you need a VM that you can quickly spin up and delete.
 
 ## Instructions
 
