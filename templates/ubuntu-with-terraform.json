@@ -9,7 +9,8 @@
                 },
                 "Parameters": [
                 "tools",
-                "ubuntuVersion"
+                "ubuntuVersion",
+                "terraformVersion"
                 ]
             },
             {
@@ -37,6 +38,11 @@
           "Description" : "Choose Yes to install these tools: jq, awscli, aws-iam-authenticator, kubectl, helm",
           "AllowedValues" : [ "Yes", "No"],
           "Type" : "String"
+        },
+        "terraformVersion" : {
+          "Description" : "Terraform version",
+          "AllowedValues" : [ "0.12.12", "0.12.23"],
+          "Type" : "String" 
         },
       "sshKey": {
         "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
@@ -258,8 +264,28 @@
                                     "sudo apt-get update -y",
                                     "sudo apt-get install -y apt-transport-https",
                                     "sudo apt-get install -y wget unzip",
-                                    "sudo wget https://releases.hashicorp.com/terraform/0.12.12/terraform_0.12.12_linux_amd64.zip",
-                                    "sudo unzip ./terraform_0.12.12_linux_amd64.zip -d /usr/local/bin/",
+                                    {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "sudo wget https://releases.hashicorp.com/terraform/",
+                                          { "Ref" : "terraformVersion" },
+                                          "/terraform_",
+                                          { "Ref" : "terraformVersion" },
+                                          "_linux_amd64.zip"
+                                        ]
+                                      ]                                  
+                                    },
+                                    {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "sudo unzip ./terraform_", 
+                                          { "Ref" : "terraformVersion" },
+                                          "_linux_amd64.zip -d /usr/local/bin/"
+                                        ]
+                                      ]
+                                    },
                                     "sudo apt-get update -y",
                                     "sudo apt-get install jq -y",
                                     "### install awscli",
@@ -291,9 +317,29 @@
                                     "sudo apt-get update -y",
                                     "sudo apt-get install -y apt-transport-https",
                                     "sudo apt-get install -y wget unzip",
-                                    "sudo wget https://releases.hashicorp.com/terraform/0.12.12/terraform_0.12.12_linux_amd64.zip",
-                                    "sudo unzip ./terraform_0.12.12_linux_amd64.zip -d /usr/local/bin/"
-                                    ]
+                                    {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "sudo wget https://releases.hashicorp.com/terraform/",
+                                          { "Ref" : "terraformVersion" },
+                                          "/terraform_",
+                                          { "Ref" : "terraformVersion" },
+                                          "_linux_amd64.zip"
+                                        ]
+                                      ]                                  
+                                    },
+                                    {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          "sudo unzip ./terraform_", 
+                                          { "Ref" : "terraformVersion" },
+                                          "_linux_amd64.zip -d /usr/local/bin/"
+                                        ]
+                                      ]
+                                    }
+                                  ]
                                 ]
                             }
                         ]
