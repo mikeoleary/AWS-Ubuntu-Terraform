@@ -41,7 +41,7 @@
         },
         "terraformVersion" : {
           "Description" : "Terraform version",
-          "AllowedValues" : [ "0.12.12", "0.12.23"],
+          "AllowedValues" : [ "0.12.12", "0.12.23", "0.13.3"],
           "Type" : "String" 
         },
       "sshKey": {
